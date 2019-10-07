@@ -10,11 +10,13 @@ const Base = require('bfx-facs-base')
 const fmt = require('util').format
 
 function client (conf, opts, cb) {
+  // Avoid [MongoError: password cannot be empty] when password is not set.
+  const userAndPass = (conf.user && conf.password) ? `${conf.user}:${conf.password}@` : ''
   let url = (opts.mongoUri)
     ? opts.mongoUri
     : fmt(
-      'mongodb://%s:%s@%s:%s/%s?authMechanism=DEFAULT&maxPoolSize=' + (conf.maxPoolSize || 150),
-      conf.user, conf.password, conf.host, conf.port, conf.database
+      'mongodb://%s%s:%s/%s?authMechanism=DEFAULT&maxPoolSize=' + (conf.maxPoolSize || 150),
+      userAndPass, conf.host, conf.port, conf.database
     )
 
   if (conf.rs && !opts.mongoUri) {
