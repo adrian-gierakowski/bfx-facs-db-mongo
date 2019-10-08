@@ -12,8 +12,9 @@ const fmt = require('util').format
 function client (conf, opts, cb) {
   // Avoid [MongoError: password cannot be empty] when password is not set.
   const userAndPass = (conf.user && conf.password) ? `${conf.user}:${conf.password}@` : ''
-  let url = (opts.mongoUri)
-    ? opts.mongoUri
+  const mongoUri = conf.mongoUri || opts.mongoUri
+  let url = (mongoUri)
+    ? mongoUri
     : fmt(
       'mongodb://%s%s:%s/%s?authMechanism=DEFAULT&maxPoolSize=' + (conf.maxPoolSize || 150),
       userAndPass, conf.host, conf.port, conf.database
@@ -50,7 +51,7 @@ class MongoFacility extends Base {
       next => {
         client(_.pick(
           this.conf,
-          ['user', 'password', 'database', 'host', 'port', 'rs', 'maxPoolSize']
+          ['user', 'password', 'database', 'host', 'port', 'rs', 'maxPoolSize', 'mongoUri']
         ), this.opts, (err, cli) => {
           if (err) return next(err)
 
